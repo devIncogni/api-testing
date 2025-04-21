@@ -1,14 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>API Testin</title>
 </head>
+
 <body>
     <img src="#" alt="">
     <script>
-        
+        const image = document.querySelector("img");
+        fetch('https://api.giphy.com/v1/gifs/translate?api_key=vtv8LtcSHmLct8tob85SCkcJy62jBEjt&s=cats', { mode: "cors" })
+            .then((response) => {
+                return response.json();
+            }).then((response) => {
+                image.src = (response.data.images.original.url);
+            });
     </script>
 </body>
+
 </html>
