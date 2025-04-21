@@ -65,7 +65,7 @@
             gap: 1rem;
         }
 
-        input[type="text"]{
+        input[type="text"] {
             padding: 0.25rem 0.35rem;
             outline: none;
             border-radius: 0.25rem;
@@ -127,21 +127,57 @@
                     </li>
                 </ul>
             </fieldset>
-            <button type="submit">Search</button>
+            <button type="submit" id="submit">Search</button>
             <button id="refresh">Get Another Gif</button>
         </form>
     </div>
 
     <script>
         const image = document.querySelector("img");
+        const searchButton = document.querySelector("button#submit");
+        const refreshButton = document.querySelector("button#refresh");
+        let lastSearch = getGifFor("cats");
 
+        document.addEventListener("click", (event) => {
+            let searchTerm = "";
+            switch (event.target.id) {
+                case "submit":
+                    event.preventDefault();
+                    searchTerm = document.querySelector("input#search-gif").value;
 
-        fetch('https://api.giphy.com/v1/gifs/translate?api_key=vtv8LtcSHmLct8tob85SCkcJy62jBEjt&s=cats', { mode: "cors" })
-            .then((response) => {
-                return response.json();
-            }).then((response) => {
-                image.src = (response.data.images.original.url);
-            }).catch(e => console.log(e));
+                    if (searchTerm) {
+                        lastSearch = getGifFor(searchTerm);
+                    } else {
+                        alert("Provide a search value");
+                    }
+                    break;
+
+                case "refresh":
+                    event.preventDefault();
+                    lastSearch = getGifFor(lastSearch);
+
+                default:
+                    break;
+            }
+        })
+
+        function getGifFor(searchTerm) {
+            fetch(`https://api.giphy.com/v1/gifs/translate?api_key=vtv8LtcSHmLct8tob85SCkcJy62jBEjt&s=${searchTerm}`, { mode: "cors" })
+                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        console.error(`Error ${response.meta.status}\n${response.meta.msg}`);
+                        image.src = "./error.png";
+                    }
+                    else {
+                        image.src = response.data.length > 0 ? response.data.images.original.url : "./no-results.png"
+                    }
+                })
+                .catch(error => console.error(error));
+
+            return searchTerm;
+        }
+
     </script>
 </body>
 
