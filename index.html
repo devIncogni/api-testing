@@ -165,8 +165,6 @@
             fetch(`https://api.giphy.com/v1/gifs/translate?api_key=K2GGttLhaHg69RkBkk4DepFldzbsrmpX&s=${searchTerm}`, { mode: "cors" })
                 .then(response => response.json())
                 .then(response => {
-                    console.log(response);
-
                     if (response.meta.status !== 200) {
                         console.error(`Error ${response.meta.status}\n${response.meta.msg}`);
                         image.src = "./error.png";
@@ -174,7 +172,7 @@
                     else {
                         image.src = Object.keys(response.data).length > 0 &&
                             Object.hasOwn(response.data, 'images') &&
-                            Object.hasOwn(response.data.images, 'original') ? 
+                            Object.hasOwn(response.data.images, 'original') ?
                             response.data.images.original.url : "./no-results.png"
                     }
                 })
