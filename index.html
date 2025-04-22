@@ -146,7 +146,7 @@
                     searchTerm = document.querySelector("input#search-gif").value;
 
                     if (searchTerm) {
-                        lastSearch = getGifFor(searchTerm);
+                        getGifFor(searchTerm).then(response => lastSearch = response);
                     } else {
                         alert("Provide a search value");
                     }
@@ -154,29 +154,54 @@
 
                 case "refresh":
                     event.preventDefault();
-                    lastSearch = getGifFor(lastSearch);
+                    getGifFor(lastSearch).then(response => lastSearch = response);
 
                 default:
                     break;
             }
         })
 
-        function getGifFor(searchTerm) {
-            fetch(`https://api.giphy.com/v1/gifs/translate?api_key=K2GGttLhaHg69RkBkk4DepFldzbsrmpX&s=${searchTerm}`, { mode: "cors" })
-                .then(response => response.json())
-                .then(response => {
-                    if (response.meta.status !== 200) {
-                        console.error(`Error ${response.meta.status}\n${response.meta.msg}`);
-                        image.src = "./error.png";
-                    }
-                    else {
-                        image.src = Object.keys(response.data).length > 0 &&
-                            Object.hasOwn(response.data, 'images') &&
-                            Object.hasOwn(response.data.images, 'original') ?
-                            response.data.images.original.url : "./no-results.png"
-                    }
-                })
-                .catch(error => console.error(error));
+        // function getGifFor(searchTerm) {
+        //     fetch(`https://api.giphy.com/v1/gifs/translate?api_key=K2GGttLhaHg69RkBkk4DepFldzbsrmpX&s=${searchTerm}`, { mode: "cors" })
+        //         .then(response => response.json())
+        //         .then(response => {
+        //             if (response.meta.status !== 200) {
+        //                 console.error(`Error ${response.meta.status}\n${response.meta.msg}`);
+        //                 image.src = "./error.png";
+        //             }
+        //             else {
+        //                 image.src = Object.keys(response.data).length > 0 &&
+        //                     Object.hasOwn(response.data, 'images') &&
+        //                     Object.hasOwn(response.data.images, 'original') ?
+        //                     response.data.images.original.url : "./no-results.png"
+        //             }
+        //         })
+        //         .catch(error => console.error(error));
+
+        //     return searchTerm;
+        // }
+
+        async function getGifFor(searchTerm) {
+
+            try {
+                const response = await fetch(`https://api.giphy.com/v1/gifs/translate?api_key=K2GGttLhaHg69RkBkk4DepFldzbsrmpX&s=${searchTerm}`, { mode: "cors" });
+                const searchData = await response.json();
+
+                if (searchData.meta.status !== 200) {
+                    throw new Error(`Error ${response.meta.status}\n${response.meta.msg}`);
+                    image.src = "./error.png";
+                } else if (!(Object.keys(searchData.data).length > 0 &&
+                    Object.hasOwn(searchData.data, 'images') &&
+                    Object.hasOwn(searchData.data.images, 'original'))) {
+                    throw new Error("No Results Found");
+                    image.src = "./no-results.png";
+                } else {
+                    image.src = searchData.data.images.original.url;
+                }
+
+            } catch (error) {
+                console.error(error);
+            }
 
             return searchTerm;
         }
